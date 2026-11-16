@@ -1,30 +1,33 @@
 # Main entry point of the Call Center project.
 
-from services.def_get_all_not_archived_calls import get_all_not_archived_calls
-from services.def_get_callinfo_by_id import get_callinfo_by_id
-from services.def_archive_call import archive_call
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import JSONResponse
+from routes.calls import router as calls_router
+from fastapi.exceptions import RequestValidationError
+
+app = FastAPI()
+
+app.include_router(calls_router)
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 
-# Display all calls that are not archived.
-print("=== NON-ARCHIVED CALLS ===")
-all_calls = get_all_not_archived_calls()
-
-for call in all_calls:
-    print(call)
-
-
-# Display a specific call by its ID.
-print("\n=== CALL DETAILS ===")
-call = get_callinfo_by_id(1001)
-print(call)
-
-if call:
-    print("Notes:")
-    for note in call.notes:
-        print(f"- {note.content}")
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    return JSONResponse(
+        status_code=400,
+        content={"error": "Invalid request"}
+    )
 
 
-# Archive a specific call by its ID.
-print("\n=== ARCHIVE CALL ===")
-archived_call = archive_call(1002)
-print(archived_call)
+@app.get("/")
+def root():
+    return {"message": "Call Center API is running"}
