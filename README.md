@@ -2,9 +2,9 @@
 
 ## About the Project
 
-This project is a Python-based backend data layer for managing phone calls.
+This project is a Python-based backend application for managing phone calls.
 
-It stores call information and related notes using in-memory data. No server or API is required.
+It uses FastAPI to expose REST API endpoints for retrieving and archiving calls. Call information and related notes are stored in memory.
 
 ## Features
 
@@ -13,6 +13,9 @@ It stores call information and related notes using in-memory data. No server or 
 - Archive a call by ID.
 - Store notes related to calls.
 - Use separate models for calls and notes.
+- Access call management features through REST API endpoints.
+- Handle missing calls with HTTP 404 responses.
+- Return HTTP 404 for non-existent or non-numeric call IDs.
 
 ## Project Structure
 
@@ -21,6 +24,9 @@ call-center-2.0/
 ├── models/
 │   ├── call.py
 │   └── note.py
+├── routes/
+│   ├── __init__.py
+│   └── calls.py
 ├── seed/
 │   └── data.py
 ├── services/
@@ -36,6 +42,8 @@ call-center-2.0/
 ## Technologies
 
 - Python
+- FastAPI
+- Uvicorn
 - Git
 - GitHub
 
@@ -51,12 +59,46 @@ pip install -r requirements.txt
 
 ## How to Run
 
-Run the following command in the terminal:
+Start the FastAPI server using:
 
 ```bash
-python main.py
+python -m uvicorn main:app --reload
 ```
 
-## Data Storage
+Open the interactive API documentation at:
 
-The project uses in-memory data. This means that changes are not permanently saved and the initial seed data is loaded again when the program starts.
+http://127.0.0.1:8000/docs
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/calls` | Retrieve all non-archived calls |
+| GET | `/calls/{call_id}` | Retrieve a call by ID, including notes |
+| PATCH | `/calls/{call_id}/archive` | Archive a call by ID |
+
+
+## Error Handling
+
+- **404 Not Found:** Returned when a call ID does not exist or is non-numeric.
+- **404 Not Found:** Returned when an API route does not exist.
+- **405 Method Not Allowed:** Returned when an unsupported HTTP method is used.
+
+Error responses use a consistent JSON structure with an `error` field.
+
+Example:
+
+```json
+{
+  "error": "Call not found"
+}
+```
+
+
+## Data Storage and Known Limitations
+
+The project currently uses in-memory data rather than a database.
+
+Changes are not permanently saved. When the server restarts, the initial seed data is loaded again.
+
+Authentication and persistent database storage are not implemented in this version.

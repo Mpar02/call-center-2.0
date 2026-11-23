@@ -1,30 +1,51 @@
 # Main entry point of the Call Center project.
 
-from services.def_get_all_not_archived_calls import get_all_not_archived_calls
-from services.def_get_callinfo_by_id import get_callinfo_by_id
-from services.def_archive_call import archive_call
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from routes.calls import router as calls_router
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+app = FastAPI()
+
+app.include_router(calls_router)
 
 
-# Display all calls that are not archived.
-print("=== NON-ARCHIVED CALLS ===")
-all_calls = get_all_not_archived_calls()
-
-for call in all_calls:
-    print(call)
-
-
-# Display a specific call by its ID.
-print("\n=== CALL DETAILS ===")
-call = get_callinfo_by_id(1001)
-print(call)
-
-if call:
-    print("Notes:")
-    for note in call.notes:
-        print(f"- {note.content}")
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(
+    request: Request,
+    exc: StarletteHTTPException
+):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail}
+    )
 
 
-# Archive a specific call by its ID.
-print("\n=== ARCHIVE CALL ===")
-archived_call = archive_call(1002)
-print(archived_call)
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(
+    request: Request,
+    exc: RequestValidationError
+):
+    return JSONResponse(
+        status_code=400,
+        content={"error": "Invalid request"}
+    )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(
+    request: Request,
+    exc: Exception
+):
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error"}
+    )
+
+
+
+
+@app.get("/health")
+def health_check():
+    return {"message": "Call Center API is running"}
