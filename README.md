@@ -15,7 +15,7 @@ It uses FastAPI to expose REST API endpoints for retrieving and archiving calls.
 - Use separate models for calls and notes.
 - Access call management features through REST API endpoints.
 - Handle missing calls with HTTP 404 responses.
-- Validate call IDs and return HTTP 400 for invalid requests.
+- Return HTTP 404 for non-existent or non-numeric call IDs.
 
 ## Project Structure
 
@@ -77,12 +77,23 @@ http://127.0.0.1:8000/docs
 | GET | `/calls/{call_id}` | Retrieve a call by ID, including notes |
 | PATCH | `/calls/{call_id}/archive` | Archive a call by ID |
 
+
 ## Error Handling
 
-- **404 Not Found:** Returned when a call ID does not exist.
-- **400 Bad Request:** Returned when a request contains an invalid call ID.
+- **404 Not Found:** Returned when a call ID does not exist or is non-numeric.
+- **404 Not Found:** Returned when an API route does not exist.
+- **405 Method Not Allowed:** Returned when an unsupported HTTP method is used.
 
-Error responses use a JSON object with an `error` field.
+Error responses use a consistent JSON structure with an `error` field.
+
+Example:
+
+```json
+{
+  "error": "Call not found"
+}
+```
+
 
 ## Data Storage and Known Limitations
 
