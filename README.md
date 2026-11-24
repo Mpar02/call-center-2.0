@@ -94,6 +94,43 @@ Example:
 }
 ```
 
+## Automated Testing
+
+The project includes automated API tests using Pytest and FastAPI TestClient.
+
+The tests verify API responses, HTTP status codes, error handling, and call archiving behavior.
+
+### Run Tests Locally
+
+Install the dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Run the test suite:
+
+```bash
+python -m pytest -v
+```
+
+The current test suite contains 5 automated tests.
+
+## Continuous Integration (CI)
+
+This project uses GitHub Actions to run automated tests on every push and pull request.
+
+The CI workflow:
+
+1. Checks out the repository.
+2. Sets up Python 3.14.
+3. Installs dependencies from `requirements.txt`.
+4. Runs the Pytest test suite.
+
+Workflow configuration: `.github/workflows/tests.yml`
+
+The CI pipeline helps detect regressions before changes are merged.
+
 
 ## Data Storage and Known Limitations
 
